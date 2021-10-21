@@ -1,0 +1,20 @@
+// Obtain Oboe path
+ext.oboeHome = null
+
+def localProperties = new File(project.rootDir, 'local.properties')
+// try read variable from local.properties
+if (localProperties.exists()) {
+    Properties properties = new Properties()
+    localProperties.withInputStream { instr -> properties.load(instr) }
+    ext.oboeHome = properties.getProperty('OBOE_HOME')
+}
+
+if (ext.oboeHome) {
+    logger.info "Using Oboe home from local.properties {}", ext.oboeHome
+} else
+if (System.env.OBOE_HOME != null) {
+    ext.oboeHome = new File(System.env.OBOE_HOME)
+    logger.info "Using Oboe home from System.env.OBOE_HOME {}", ext.oboeHome
+} else {
+    throw new GradleException('ERROR: Oboe home directory is not defined')
+}
