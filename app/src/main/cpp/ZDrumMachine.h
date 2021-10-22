@@ -14,6 +14,7 @@
 #include "constants/ZDrumMachineConstants.h"
 #include "audio/Player.h"
 #include "audio/Mixer.h"
+#include "audio/AAssetDataSource.h"
 
 using namespace oboe;
 using namespace std;
@@ -45,7 +46,7 @@ private:
     shared_ptr<AudioStream> mAudioStream;
 
     // Sounds
-    unique_ptr<Player> mMetronomeSound;
+    unique_ptr<Player> mMetronomeWeakSound;
     unique_ptr<Player> mDrumMidTomeSound;
     unique_ptr<Player> mDrumShareSound;
 
@@ -57,9 +58,9 @@ private:
     atomic<int64_t> mSongPositionMs{0};
 
     // Claps
-    LockFreeQueue<int64_t, kMaxQueueItems> mClapMetronomeSound;
-    LockFreeQueue<int64_t, kMaxQueueItems> mClapDrumMidTomSound;
-    LockFreeQueue<int64_t, kMaxQueueItems> mClapDrumShareSound;
+    LockFreeQueue<int64_t, kMaxQueueItems> mMetronomeWeakEvents;
+    LockFreeQueue<int64_t, kMaxQueueItems> mDrumMidTomEvents;
+    LockFreeQueue<int64_t, kMaxQueueItems> mDrumShareEvents;
 
     // State
     atomic<PlayingState> mPlayingState{PlayingState::Stopped};

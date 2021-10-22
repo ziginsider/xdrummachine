@@ -20,6 +20,12 @@
 constexpr int kBufferSizeInBursts = 2; // Use 2 bursts as the buffer size (double buffer)
 constexpr int kMaxQueueItems = 8; // Must be power of 2
 
+// Frames per second
+constexpr int32_t kFramesPerSecond = 48000;
+
+// Stream's channel count - Stereo
+constexpr int kChannelCount = 2;
+
 // Filename for metronome sound asset (in assets folder)
 constexpr char kMetronomeWeakFilename[] { "metronome_weak.mp3" };
 
@@ -32,7 +38,7 @@ constexpr char kSnareDrumFilename[] { "snare_drum.mp3" };
 // here in milliseconds. Our backing track has a tempo of 120 beats per minute, which is 2 beats per
 // second. This means a pattern of 3 claps starting on the first beat of the first bar would mean
 // playing claps at 0ms, 500ms and 1000ms
-constexpr int64_t kTestMetronomeEvents[] { 0, 500, 1000, 1500, 2000, 2500, 3000, 3500 };
+constexpr int64_t kTestMetronomeEvents[] { 0, 500, 1000, 5000, 7000, 9000, 10000, 13500 };
 
 // We then want the user to tap on the screen exactly 4 beats after the first clap so we add clap
 // windows at 2000ms, 2500ms and 3000ms (or 2, 2.5 and 3 seconds). @see getTapResult for more info.
