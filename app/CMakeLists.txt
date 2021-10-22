@@ -31,6 +31,9 @@ add_library( # Sets the name of the library.
         src/main/cpp/native-lib.cpp
         src/main/cpp/ZDrumMachine.cpp
 
+        # audio engine
+        src/main/cpp/audio/Player.cpp
+
         # utility functions
         src/main/cpp/utils/logging.h
         src/main/cpp/utils/UtilityFunctions.cpp
