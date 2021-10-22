@@ -5,6 +5,7 @@
 #ifndef ZDRUMMACHINE_ZDRUMMACHINE_H
 #define ZDRUMMACHINE_ZDRUMMACHINE_H
 
+#include <future>
 #include <android/asset_manager.h>
 #include <oboe/Oboe.h>
 
@@ -13,6 +14,7 @@
 #include "constants/ZDrumMachineConstants.h"
 #include "audio/Player.h"
 #include "audio/Mixer.h"
+#include "audio/AAssetDataSource.h"
 
 using namespace oboe;
 using namespace std;
@@ -28,8 +30,10 @@ class ZDrumMachine : public AudioStreamDataCallback, AudioStreamErrorCallback {
 public:
     explicit ZDrumMachine(AAssetManager &);
 
+    // Start playing
     void start();
 
+    // Stop playing
     void stop();
 
     DataCallbackResult
@@ -42,7 +46,7 @@ private:
     shared_ptr<AudioStream> mAudioStream;
 
     // Sounds
-    unique_ptr<Player> mMetronomeSound;
+    unique_ptr<Player> mMetronomeWeakSound;
     unique_ptr<Player> mDrumMidTomeSound;
     unique_ptr<Player> mDrumShareSound;
 
@@ -54,19 +58,25 @@ private:
     atomic<int64_t> mSongPositionMs{0};
 
     // Claps
-    LockFreeQueue<int64_t, kMaxQueueItems> mClapMetronomeSound;
-    LockFreeQueue<int64_t, kMaxQueueItems> mClapDrumMidTomSound;
-    LockFreeQueue<int64_t, kMaxQueueItems> mClapDrumShareSound;
+    LockFreeQueue<int64_t, kMaxQueueItems> mMetronomeWeakEvents;
+    LockFreeQueue<int64_t, kMaxQueueItems> mDrumMidTomEvents;
+    LockFreeQueue<int64_t, kMaxQueueItems> mDrumShareEvents;
 
     // State
-    atomic<PlayingState> mPlayingState {PlayingState::Stopped};
+    atomic<PlayingState> mPlayingState{PlayingState::Stopped};
 
     // Functions
-    void Load();
+    future<void> mLoadingResult;
+
+    void load();
+
     bool openStream();
+
     bool setupAudioSources();
+
     void scheduleSongEvents();
 
+    void release();
 };
 
 #endif //ZDRUMMACHINE_ZDRUMMACHINE_H

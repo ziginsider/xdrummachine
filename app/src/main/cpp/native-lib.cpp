@@ -29,6 +29,6 @@ Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onStart(JNIEnv *env,
     }
 
     machine = std::make_unique<ZDrumMachine>(*assetManager);
-    //machine->start();
+    machine->start();
 }
 } // extern "C"

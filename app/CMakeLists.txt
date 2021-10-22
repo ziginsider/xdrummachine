@@ -12,7 +12,7 @@ project("zdrummachine")
 # Check, if arguments are set
 if (NOT DEFINED OBOE_HOME)
     message(FATAL_ERROR "OBOE_HOME is not defined")
-endif()
+endif ()
 
 include_directories(src/main/cpp/)
 
@@ -32,19 +32,13 @@ add_library( # Sets the name of the library.
         src/main/cpp/ZDrumMachine.cpp
 
         # audio engine
+        src/main/cpp/audio/AAssetDataSource.cpp
         src/main/cpp/audio/Player.cpp
 
         # utility functions
         src/main/cpp/utils/logging.h
         src/main/cpp/utils/UtilityFunctions.cpp
         )
-
-# Build the Oboe library
-set (OBOE_DIR ${OBOE_HOME})
-add_subdirectory (${OBOE_DIR} ./oboe)
-
-# Make the Oboe public headers available to our app
-include_directories (${OBOE_DIR}/include)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -59,6 +53,19 @@ find_library( # Sets the name of the path variable.
         # you want CMake to locate.
         log)
 
+set(TARGET_LIBS ${log-lib} android oboe)
+
+# Set extractors (TODO: add FFMPEG extractor)
+target_sources(zdrummachine PRIVATE src/main/cpp/audio/NDKExtractor.cpp)
+set(TARGET_LIBS ${TARGET_LIBS} mediandk)
+
+# Build the Oboe library
+set(OBOE_DIR ${OBOE_HOME})
+add_subdirectory(${OBOE_DIR} ./oboe)
+
+# Make the Oboe public headers available to our app
+include_directories(${OBOE_DIR}/include)
+
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
@@ -68,4 +75,4 @@ target_link_libraries( # Specifies the target library.
 
         # Links the target library to the log library
         # included in the NDK.
-        ${log-lib} oboe android)
+        ${TARGET_LIBS})
