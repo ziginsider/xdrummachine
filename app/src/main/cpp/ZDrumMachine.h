@@ -5,6 +5,7 @@
 #ifndef ZDRUMMACHINE_ZDRUMMACHINE_H
 #define ZDRUMMACHINE_ZDRUMMACHINE_H
 
+#include <future>
 #include <android/asset_manager.h>
 #include <oboe/Oboe.h>
 
@@ -28,8 +29,10 @@ class ZDrumMachine : public AudioStreamDataCallback, AudioStreamErrorCallback {
 public:
     explicit ZDrumMachine(AAssetManager &);
 
+    // Start playing
     void start();
 
+    // Stop playing
     void stop();
 
     DataCallbackResult
@@ -59,14 +62,20 @@ private:
     LockFreeQueue<int64_t, kMaxQueueItems> mClapDrumShareSound;
 
     // State
-    atomic<PlayingState> mPlayingState {PlayingState::Stopped};
+    atomic<PlayingState> mPlayingState{PlayingState::Stopped};
 
     // Functions
-    void Load();
+    future<void> mLoadingResult;
+
+    void load();
+
     bool openStream();
+
     bool setupAudioSources();
+
     void scheduleSongEvents();
 
+    void release();
 };
 
 #endif //ZDRUMMACHINE_ZDRUMMACHINE_H
