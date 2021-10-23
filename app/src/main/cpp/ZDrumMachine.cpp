@@ -48,6 +48,8 @@ ZDrumMachine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t num
     auto *outputBuffer = static_cast<float *>(audioData);
 
     int64_t nextMetronomeWeakEventMs;
+    int64_t nextDrumMidTomEventMs;
+    int64_t nextDrumSnareEventMs;
 
     for (int i = 0; i < numFrames; ++i) {
         mSongPositionMs = convertFramesToMillis(mCurrentFrame, mAudioStream->getSampleRate());
@@ -55,16 +57,42 @@ ZDrumMachine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t num
         // Metronome weak
         if (mMetronomeWeakEvents.peek(nextMetronomeWeakEventMs) &&
             mSongPositionMs >=
-            nextMetronomeWeakEventMs + (mMultiplier * 4000)) {
+            nextMetronomeWeakEventMs + (mMultiplierMetronomeWeak * 4000)) {
             mMetronomeWeakSound->setPlaying(true);
             mMetronomeWeakEvents.pop(nextMetronomeWeakEventMs);
 
             if (mMetronomeWeakEvents.isEmpty()) {
-                mMultiplier += 1;
-                scheduleSongEvents();
+                mMultiplierMetronomeWeak += 1;
+                scheduleMetronomeEvents();
             }
         }
         // End Metronome weak
+
+        // Drum Mid Tom
+        if (mDrumMidTomEvents.peek(nextDrumMidTomEventMs) &&
+            mSongPositionMs >= nextDrumMidTomEventMs + (mMultiplierDrumMidTom * 4000)) {
+            mDrumMidTomeSound->setPlaying(true);
+            mDrumMidTomEvents.pop(nextDrumMidTomEventMs);
+
+            if (mDrumMidTomEvents.isEmpty()) {
+                mMultiplierDrumMidTom += 1;
+                scheduleDrumMidTomEvents();
+            }
+        }
+        // End Drum Mid Tom
+
+        // Drum Snare
+        if (mDrumShareEvents.peek(nextDrumSnareEventMs) &&
+            mSongPositionMs >= nextDrumSnareEventMs + (mMultiplierDrumSnare * 4000)) {
+            mDrumShareSound->setPlaying(true);
+            mDrumShareEvents.pop(nextDrumSnareEventMs);
+
+            if (mDrumShareEvents.isEmpty()) {
+                mMultiplierDrumSnare += 1;
+                scheduleDrumSnareEvents();
+            }
+        }
+        // End Drum Snare
 
         mMixer.renderAudio(outputBuffer + (oboeStream->getChannelCount() * i), 1);
         mCurrentFrame++;
@@ -84,8 +112,15 @@ void ZDrumMachine::load() {
         return;
     }
 
+    // TODO in func
     if (mMetronomeWeakEvents.isEmpty()) {
-        scheduleSongEvents();
+        scheduleMetronomeEvents();
+    }
+    if (mDrumMidTomEvents.isEmpty()) {
+        scheduleDrumMidTomEvents();
+    }
+    if (mDrumShareEvents.isEmpty()) {
+        scheduleDrumSnareEvents();
     }
 
     StreamState streamState = mAudioStream->getState();
@@ -139,25 +174,57 @@ bool ZDrumMachine::setupAudioSources() {
             .sampleRate = mAudioStream->getSampleRate()
     };
 
-    // Create a data source and player for the clap sound
+    // Create a data source and player for the metronome weak sound
     std::shared_ptr<AAssetDataSource> mMetronomeWeakSource{
             AAssetDataSource::newFromCompressedAssetZ(mAssetManager, kMetronomeWeakFilename,
                                                       targetProperties)
     };
     if (mMetronomeWeakSource == nullptr) {
-        LOGE("Could not load source data for clap sound");
+        LOGE("Could not load source data for metronome weak sound");
         return false;
     }
     mMetronomeWeakSound = std::make_unique<Player>(mMetronomeWeakSource);
 
+    // Create a data source and player for the drum mid tom sound
+    std::shared_ptr<AAssetDataSource> mDrumMidTomSource{
+            AAssetDataSource::newFromCompressedAssetZ(mAssetManager, kMidTomFilename,
+                                                      targetProperties)
+    };
+    if (mDrumMidTomSource == nullptr) {
+        LOGE("Could not load source data for drum mid tom sound");
+        return false;
+    }
+    mDrumMidTomeSound = std::make_unique<Player>(mDrumMidTomSource);
+
+    // Create a data source and player for the drum snare sound
+    std::shared_ptr<AAssetDataSource> mDrumSnareSource{
+            AAssetDataSource::newFromCompressedAssetZ(mAssetManager, kSnareDrumFilename,
+                                                      targetProperties)
+    };
+    if (mDrumSnareSource == nullptr) {
+        LOGE("Could not load source data for drum snare sound");
+        return false;
+    }
+    mDrumShareSound = std::make_unique<Player>(mDrumSnareSource);
+
     //Add players to a mixer
     mMixer.addTrack(mMetronomeWeakSound.get());
+    mMixer.addTrack(mDrumMidTomeSound.get());
+    mMixer.addTrack(mDrumShareSound.get());
 
     return true;
 }
 
-void ZDrumMachine::scheduleSongEvents() {
+void ZDrumMachine::scheduleMetronomeEvents() {
     for (auto t : kTestMetronomeEvents) mMetronomeWeakEvents.push(t);
+}
+
+void ZDrumMachine::scheduleDrumMidTomEvents() {
+    for (auto t : kTestDrumMidTomEvents) mDrumMidTomEvents.push(t);
+}
+
+void ZDrumMachine::scheduleDrumSnareEvents() {
+    for (auto t : kTestDrumShareEvents) mDrumShareEvents.push(t);
 }
 
 void ZDrumMachine::release() {
@@ -165,4 +232,7 @@ void ZDrumMachine::release() {
     mMixer.removeAllTracks();
     mCurrentFrame = 0;
     mSongPositionMs = 0;
+    mMultiplierMetronomeWeak = 0;
+    mMultiplierDrumMidTom = 0;
+    mMultiplierDrumSnare = 0;
 }
