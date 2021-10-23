@@ -35,8 +35,8 @@ constexpr char kSnareDrumFilename[] { "snare_drum.mp3" };
 
 // Test events
 constexpr int64_t kTestMetronomeEvents[] { 0, 1000, 2000, 3000 };
-constexpr int64_t kTestDrumMidTomEvents[] { 2000, 2500, 3000 };
-constexpr int64_t kTestDrumShareEvents[] { 3000, 3500, 4000 };
+constexpr int64_t kTestDrumMidTomEvents[] { 500, 2000, 2500, 3000 };
+constexpr int64_t kTestDrumShareEvents[] { 1000, 2500, 3000 };
 
 struct AudioProperties {
     int32_t channelCount;

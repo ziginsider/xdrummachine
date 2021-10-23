@@ -59,7 +59,9 @@ private:
     // Audio stream
     atomic<int64_t> mCurrentFrame{0};
     atomic<int64_t> mSongPositionMs{0};
-    atomic<int64_t> mMultiplier{0};
+    atomic<int64_t> mMultiplierMetronomeWeak{0};
+    atomic<int64_t> mMultiplierDrumMidTom{0};
+    atomic<int64_t> mMultiplierDrumSnare{0};
 
     // Claps
     LockFreeQueue<int64_t, kMaxQueueItems> mMetronomeWeakEvents;
@@ -78,7 +80,11 @@ private:
 
     bool setupAudioSources();
 
-    void scheduleSongEvents();
+    void scheduleMetronomeEvents();
+
+    void scheduleDrumMidTomEvents();
+
+    void scheduleDrumSnareEvents();
 
     void release();
 };
