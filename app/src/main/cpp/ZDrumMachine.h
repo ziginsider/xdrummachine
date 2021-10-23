@@ -36,6 +36,9 @@ public:
     // Stop playing
     void stop();
 
+    // Pause plauing
+    void pause();
+
     DataCallbackResult
     onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) override;
 

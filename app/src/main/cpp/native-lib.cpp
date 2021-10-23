@@ -32,3 +32,13 @@ Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onStart(JNIEnv *env,
     machine->start();
 }
 } // extern "C"
+extern "C"
+JNIEXPORT void JNICALL
+Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onPause(JNIEnv *env, jobject thiz) {
+    machine->pause();
+}
+extern "C"
+JNIEXPORT void JNICALL
+Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onStop(JNIEnv *env, jobject thiz) {
+    machine->stop();
+}
