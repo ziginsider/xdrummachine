@@ -6,6 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.view.isVisible
 import io.github.ziginsider.zdrummachine.databinding.ActivityMainBinding
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,6 +24,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (savedInstanceState == null) {
+            binding.seekBar.progress = 60
+            binding.seekBarTextView.text = binding.seekBar.progress.toString()
+        }
+
         // Example of a call to a native method
         binding.sampleText.text = stringFromJNI()
 
@@ -29,7 +37,7 @@ class MainActivity : AppCompatActivity() {
             when (playingStatus) {
                 0, 2 -> {
                     Log.d(TAG, "start playing")
-                    native_onStart(this.assets)
+                    native_onStart(this.assets, binding.seekBar.progress)
                     playingStatus = 1 // TODO get status from zDrumMachine instead
                     binding.playButton.setImageDrawable(this.getDrawable(R.drawable.ic_baseline_pause_24))
                     binding.stopButton.isVisible = true
@@ -45,11 +53,43 @@ class MainActivity : AppCompatActivity() {
 
         binding.stopButton.setOnClickListener {
             Log.d(TAG, "stop playing")
-            native_onStop()
-            playingStatus = 0
-            binding.stopButton.isVisible = false
-            binding.playButton.setImageDrawable(this.getDrawable(R.drawable.ic_baseline_play_arrow_24))
+            binding.seekBar.progress = 60
+            onStopPlaying()
         }
+
+        setSeekBar()
+    }
+
+    private fun setSeekBar() {
+
+        binding.seekBar.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, i: Int, b: Boolean) {
+                binding.seekBarTextView.text = i.toString()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                onStopPlaying()
+            }
+        })
+
+        binding.minusBpmButton.setOnClickListener {
+            onStopPlaying()
+            binding.seekBar.progress--
+        }
+
+        binding.plusBpmButton.setOnClickListener {
+            onStopPlaying()
+            binding.seekBar.progress++
+        }
+    }
+
+    private fun onStopPlaying() {
+        if (playingStatus == 0) return
+        native_onStop()
+        playingStatus = 0
+        binding.stopButton.isVisible = false
+        binding.playButton.setImageDrawable(this@MainActivity.getDrawable(R.drawable.ic_baseline_play_arrow_24))
     }
 
     /**
@@ -58,11 +98,13 @@ class MainActivity : AppCompatActivity() {
      */
     external fun stringFromJNI(): String
 
-    private external fun native_onStart(assetManager: AssetManager)
+    private external fun native_onStart(assetManager: AssetManager, bpm: Int)
 
     private external fun native_onPause()
 
     private external fun native_onStop()
+
+//    private external fun native_stop(bmp: Int)
 
     companion object {
         // Used to load the 'zdrummachine' library on application startup.

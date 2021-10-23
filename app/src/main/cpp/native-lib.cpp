@@ -20,7 +20,8 @@ Java_io_github_ziginsider_zdrummachine_MainActivity_stringFromJNI(
 
 JNIEXPORT void JNICALL
 Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onStart(JNIEnv *env, jobject thiz,
-                                                                    jobject asset_manager) {
+                                                                    jobject asset_manager,
+                                                                    jint bpm) {
 
     AAssetManager *assetManager = AAssetManager_fromJava(env, asset_manager);
     if (assetManager == nullptr) {
@@ -28,17 +29,18 @@ Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onStart(JNIEnv *env,
         return;
     }
 
-    machine = std::make_unique<ZDrumMachine>(*assetManager);
+    machine = std::make_unique<ZDrumMachine>(*assetManager, bpm);
     machine->start();
 }
-} // extern "C"
-extern "C"
+
 JNIEXPORT void JNICALL
 Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onPause(JNIEnv *env, jobject thiz) {
     machine->pause();
 }
-extern "C"
+
 JNIEXPORT void JNICALL
 Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onStop(JNIEnv *env, jobject thiz) {
     machine->stop();
 }
+} // extern "C"
+
