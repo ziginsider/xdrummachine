@@ -25,6 +25,13 @@ void ZDrumMachine::stop() {
     }
 }
 
+void ZDrumMachine::pause() {
+    mPlayingState = PlayingState::Paused;
+    if (mAudioStream) {
+        mAudioStream->pause();
+    }
+}
+
 void ZDrumMachine::onErrorAfterClose(AudioStream *stream, Result result) {
     if (result == Result::ErrorDisconnected) {
         release();
@@ -77,13 +84,27 @@ void ZDrumMachine::load() {
         return;
     }
 
-    scheduleSongEvents();
+    if (mMetronomeWeakEvents.isEmpty()) {
+        scheduleSongEvents();
+    }
 
-    Result result = mAudioStream->requestStart();
-    if (result != Result::OK) {
-        LOGE("Failed to start stream. Error: %s", convertToText(result));
-        mPlayingState = PlayingState::FailedToLoad;
-        return;
+    StreamState streamState = mAudioStream->getState();
+    if (streamState == StreamState::Open || streamState == StreamState::Stopped ||
+        streamState == StreamState::Closed || streamState == StreamState::Uninitialized) {
+        Result result = mAudioStream->requestStart();
+        if (result != Result::OK) {
+            LOGE("Failed to start stream. Error: %s", convertToText(result));
+            mPlayingState = PlayingState::FailedToLoad;
+            return;
+        }
+    }
+    if (streamState == StreamState::Paused) {
+        Result result = mAudioStream->start();
+        if (result != Result::OK) {
+            LOGE("Failed to start stream. Error: %s", convertToText(result));
+            mPlayingState = PlayingState::FailedToLoad;
+            return;
+        }
     }
 }
 
