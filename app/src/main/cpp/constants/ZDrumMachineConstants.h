@@ -33,6 +33,10 @@ constexpr char kMetronomeWeakFilename[] { "metronome_weak.mp3" };
 constexpr char kMidTomFilename[] { "mid_tom.mp3" };
 constexpr char kSnareDrumFilename[] { "snare_drum.mp3" };
 
+// mock bpm
+constexpr int kStandardBpm = 60;
+constexpr int kRealBpm = 80;
+
 // Test events
 constexpr int64_t kTestMetronomeEvents[] { 0, 1000, 2000, 3000 };
 constexpr int64_t kTestDrumMidTomEvents[] { 500, 2000, 2500, 3000 };
