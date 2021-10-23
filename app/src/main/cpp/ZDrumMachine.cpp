@@ -9,7 +9,8 @@
 
 #include "ZDrumMachine.h"
 
-ZDrumMachine::ZDrumMachine(AAssetManager &assetManager) : mAssetManager(assetManager) {
+ZDrumMachine::ZDrumMachine(AAssetManager &assetManager, int bpmReal) : mAssetManager(assetManager)  {
+    mBpmReal = bpmReal;
 }
 
 void ZDrumMachine::start() {
@@ -124,7 +125,7 @@ void ZDrumMachine::load() {
     }
 
     // Bpm
-    mBpm = (static_cast<double>(kStandardBpm) / kRealBpm);
+    mBpm = (static_cast<double>(kStandardBpm) / mBpmReal);
 
     StreamState streamState = mAudioStream->getState();
     if (streamState == StreamState::Open || streamState == StreamState::Stopped ||

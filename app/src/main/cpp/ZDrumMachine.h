@@ -28,7 +28,7 @@ enum class PlayingState {
 
 class ZDrumMachine : public AudioStreamDataCallback, AudioStreamErrorCallback {
 public:
-    explicit ZDrumMachine(AAssetManager &);
+    explicit ZDrumMachine(AAssetManager &, int);
 
     // Start playing
     void start();
@@ -36,7 +36,7 @@ public:
     // Stop playing
     void stop();
 
-    // Pause plauing
+    // Pause playing
     void pause();
 
     DataCallbackResult
@@ -46,6 +46,7 @@ public:
 
 private:
     AAssetManager &mAssetManager;
+    int mBpmReal;
     shared_ptr<AudioStream> mAudioStream;
 
     // Sounds
