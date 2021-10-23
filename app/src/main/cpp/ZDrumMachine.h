@@ -56,6 +56,7 @@ private:
     // Audio stream
     atomic<int64_t> mCurrentFrame{0};
     atomic<int64_t> mSongPositionMs{0};
+    atomic<int64_t> mMultiplier{0};
 
     // Claps
     LockFreeQueue<int64_t, kMaxQueueItems> mMetronomeWeakEvents;

@@ -43,17 +43,23 @@ ZDrumMachine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t num
     int64_t nextMetronomeWeakEventMs;
 
     for (int i = 0; i < numFrames; ++i) {
-        mSongPositionMs = convertFramesToMillis(
-                mCurrentFrame,
-                mAudioStream->getSampleRate());
+        mSongPositionMs = convertFramesToMillis(mCurrentFrame, mAudioStream->getSampleRate());
 
+        // Metronome weak
         if (mMetronomeWeakEvents.peek(nextMetronomeWeakEventMs) &&
-            mSongPositionMs >= nextMetronomeWeakEventMs) {
+            mSongPositionMs >=
+            nextMetronomeWeakEventMs + (mMultiplier * 4000)) {
             mMetronomeWeakSound->setPlaying(true);
             mMetronomeWeakEvents.pop(nextMetronomeWeakEventMs);
-        }
 
-        mMixer.renderAudio(outputBuffer+(oboeStream->getChannelCount()*i), 1);
+            if (mMetronomeWeakEvents.isEmpty()) {
+                mMultiplier += 1;
+                scheduleSongEvents();
+            }
+        }
+        // End Metronome weak
+
+        mMixer.renderAudio(outputBuffer + (oboeStream->getChannelCount() * i), 1);
         mCurrentFrame++;
     }
 

@@ -21,11 +21,19 @@
 
 constexpr int64_t kMillisecondsInSecond = 1000;
 constexpr int64_t kNanosecondsInMillisecond = 1000000;
+constexpr int64_t kFourSecondInMillisecond = 4000;
 
 int64_t nowUptimeMillis();
 
 constexpr int64_t convertFramesToMillis(const int64_t frames, const int sampleRate) {
     return static_cast<int64_t>((static_cast<double>(frames) / sampleRate) * kMillisecondsInSecond);
+}
+
+constexpr int64_t
+convertFramesToMillisZ(const int64_t frames, const int sampleRate, const int multiplier) {
+    int64_t offset = static_cast<int64_t>(multiplier * kFourSecondInMillisecond);
+    return static_cast<int64_t>((static_cast<double>(frames) / sampleRate) * kMillisecondsInSecond +
+                                offset);
 }
 
 #endif //ZDRUMMACHINE_UTILITYFUNCTIONS_H
