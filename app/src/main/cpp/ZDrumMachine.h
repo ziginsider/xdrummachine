@@ -53,6 +53,9 @@ private:
     unique_ptr<Player> mDrumMidTomeSound;
     unique_ptr<Player> mDrumShareSound;
 
+    //bpm
+    double mBpm{0.00};
+
     // Mixer
     Mixer mMixer;
 

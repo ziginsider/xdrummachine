@@ -57,7 +57,7 @@ ZDrumMachine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t num
         // Metronome weak
         if (mMetronomeWeakEvents.peek(nextMetronomeWeakEventMs) &&
             mSongPositionMs >=
-            nextMetronomeWeakEventMs + (mMultiplierMetronomeWeak * 4000)) {
+                    static_cast<int64_t>((nextMetronomeWeakEventMs + (mMultiplierMetronomeWeak * 4000)) * mBpm)) {
             mMetronomeWeakSound->setPlaying(true);
             mMetronomeWeakEvents.pop(nextMetronomeWeakEventMs);
 
@@ -70,7 +70,7 @@ ZDrumMachine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t num
 
         // Drum Mid Tom
         if (mDrumMidTomEvents.peek(nextDrumMidTomEventMs) &&
-            mSongPositionMs >= nextDrumMidTomEventMs + (mMultiplierDrumMidTom * 4000)) {
+            mSongPositionMs >= static_cast<int64_t>((nextDrumMidTomEventMs + (mMultiplierDrumMidTom * 4000)) * mBpm)) {
             mDrumMidTomeSound->setPlaying(true);
             mDrumMidTomEvents.pop(nextDrumMidTomEventMs);
 
@@ -83,7 +83,7 @@ ZDrumMachine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t num
 
         // Drum Snare
         if (mDrumShareEvents.peek(nextDrumSnareEventMs) &&
-            mSongPositionMs >= nextDrumSnareEventMs + (mMultiplierDrumSnare * 4000)) {
+            mSongPositionMs >= static_cast<int64_t>((nextDrumSnareEventMs + (mMultiplierDrumSnare * 4000)) * mBpm)) {
             mDrumShareSound->setPlaying(true);
             mDrumShareEvents.pop(nextDrumSnareEventMs);
 
@@ -122,6 +122,9 @@ void ZDrumMachine::load() {
     if (mDrumShareEvents.isEmpty()) {
         scheduleDrumSnareEvents();
     }
+
+    // Bpm
+    mBpm = (static_cast<double>(kStandardBpm) / kRealBpm);
 
     StreamState streamState = mAudioStream->getState();
     if (streamState == StreamState::Open || streamState == StreamState::Stopped ||
