@@ -34,7 +34,7 @@ constexpr char kMidTomFilename[] { "mid_tom.mp3" };
 constexpr char kSnareDrumFilename[] { "snare_drum.mp3" };
 
 // Test events
-constexpr int64_t kTestMetronomeEvents[] { 0, 500, 1000, 3000 };
+constexpr int64_t kTestMetronomeEvents[] { 0, 1000, 1000, 3000 };
 constexpr int64_t kTestDrumMidTomEvents[] { 2000, 2500, 3000 };
 constexpr int64_t kTestDrumShareEvents[] { 3000, 3500, 4000 };
 
