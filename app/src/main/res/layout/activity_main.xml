@@ -170,6 +170,94 @@
                 app:layout_constraintStart_toEndOf="@id/snare_7"
                 app:layout_constraintTop_toBottomOf="@id/mid_tom_1" />
 
+            <TextView
+                android:id="@+id/viz_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintEnd_toEndOf="@id/snare_1"
+                app:layout_constraintStart_toStartOf="@id/snare_1"
+                app:layout_constraintTop_toBottomOf="@id/snare_1"
+                tools:text="+" />
+
+            <TextView
+                android:id="@+id/viz_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintEnd_toEndOf="@id/snare_2"
+                app:layout_constraintStart_toStartOf="@id/snare_2"
+                app:layout_constraintTop_toBottomOf="@id/snare_2"
+                tools:text="+" />
+
+            <TextView
+                android:id="@+id/viz_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintEnd_toEndOf="@id/snare_3"
+                app:layout_constraintStart_toStartOf="@id/snare_3"
+                app:layout_constraintTop_toBottomOf="@id/snare_3"
+                tools:text="+" />
+
+            <TextView
+                android:id="@+id/viz_4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintEnd_toEndOf="@id/snare_4"
+                app:layout_constraintStart_toStartOf="@id/snare_4"
+                app:layout_constraintTop_toBottomOf="@id/snare_4"
+                tools:text="+" />
+
+            <TextView
+                android:id="@+id/viz_5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintEnd_toEndOf="@id/snare_5"
+                app:layout_constraintStart_toStartOf="@id/snare_5"
+                app:layout_constraintTop_toBottomOf="@id/snare_5"
+                tools:text="+" />
+
+            <TextView
+                android:id="@+id/viz_6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintEnd_toEndOf="@id/snare_6"
+                app:layout_constraintStart_toStartOf="@id/snare_6"
+                app:layout_constraintTop_toBottomOf="@id/snare_6"
+                tools:text="+" />
+
+            <TextView
+                android:id="@+id/viz_7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintEnd_toEndOf="@id/snare_7"
+                app:layout_constraintStart_toStartOf="@id/snare_7"
+                app:layout_constraintTop_toBottomOf="@id/snare_7"
+                tools:text="+" />
+
+            <TextView
+                android:id="@+id/viz_8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintEnd_toEndOf="@id/snare_8"
+                app:layout_constraintStart_toStartOf="@id/snare_8"
+                app:layout_constraintTop_toBottomOf="@id/snare_8"
+                tools:text="+" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -196,6 +284,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toLeftOf="@id/play_button"
         tools:visibility="visible" />
+
+    <CheckBox
+        android:id="@+id/viz_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checked="false"
+        android:text="Visualization"
+        app:layout_constraintTop_toBottomOf="@id/minus_bpm_button"
+        app:layout_constraintBottom_toTopOf="@id/metronome_checkbox"
+        app:layout_constraintStart_toStartOf="@id/minus_bpm_button" />
 
     <CheckBox
         android:id="@+id/metronome_checkbox"
