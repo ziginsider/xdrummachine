@@ -140,6 +140,11 @@ public:
 
     bool isEmpty() const { return readCounter == writeCounter; }
 
+    void clear() {
+        writeCounter = 0;
+        readCounter = 0;
+    }
+
 private:
 
     bool isFull() const { return size() == CAPACITY; }

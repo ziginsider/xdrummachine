@@ -31,13 +31,16 @@ public:
     explicit ZDrumMachine(AAssetManager &, int);
 
     // Start playing
-    void start();
+    void start(int bpm);
 
     // Stop playing
     void stop();
 
     // Pause playing
     void pause();
+
+    // Sound Events
+    void setPatternForSound(int idSound, const vector<int>& pattern);
 
     DataCallbackResult
     onAudioReady(AudioStream *oboeStream, void *audioData, int32_t numFrames) override;
@@ -67,10 +70,19 @@ private:
     atomic<int64_t> mMultiplierDrumMidTom{0};
     atomic<int64_t> mMultiplierDrumSnare{0};
 
-    // Claps
+    // Sound Events
     LockFreeQueue<int64_t, kMaxQueueItems> mMetronomeWeakEvents;
     LockFreeQueue<int64_t, kMaxQueueItems> mDrumMidTomEvents;
     LockFreeQueue<int64_t, kMaxQueueItems> mDrumShareEvents;
+
+    // Sound pattern bank. NB: Sound events are the work queues and can be changed during playing.
+    // Sound bank otherwise keep sound pattern during the playing session.
+    vector<int64_t> mMetronomeWeakBank = vector<int64_t>(kMaxQueueItems, false);
+    vector<int64_t> mDrumMidTomBank = vector<int64_t>(kMaxQueueItems, false);
+    vector<int64_t> mDrumSnareBank = vector<int64_t>(kMaxQueueItems, false);
+
+    LockFreeQueue<int64_t, kMaxQueueItems> *getSoundEvents(int idSound);
+    vector<int64_t> *getSoundBank(int idSound);
 
     // State
     atomic<PlayingState> mPlayingState{PlayingState::Stopped};
@@ -91,6 +103,7 @@ private:
     void scheduleDrumSnareEvents();
 
     void release();
+
 };
 
 #endif //ZDRUMMACHINE_ZDRUMMACHINE_H

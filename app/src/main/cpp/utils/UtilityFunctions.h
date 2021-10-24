@@ -18,10 +18,9 @@
 #define ZDRUMMACHINE_UTILITYFUNCTIONS_H
 
 #include <stdint.h>
+#include <string>
 
 constexpr int64_t kMillisecondsInSecond = 1000;
-constexpr int64_t kNanosecondsInMillisecond = 1000000;
-constexpr int64_t kFourSecondInMillisecond = 4000;
 
 int64_t nowUptimeMillis();
 
@@ -29,11 +28,16 @@ constexpr int64_t convertFramesToMillis(const int64_t frames, const int sampleRa
     return static_cast<int64_t>((static_cast<double>(frames) / sampleRate) * kMillisecondsInSecond);
 }
 
-constexpr int64_t
-convertFramesToMillisZ(const int64_t frames, const int sampleRate, const int multiplier) {
-    int64_t offset = static_cast<int64_t>(multiplier * kFourSecondInMillisecond);
-    return static_cast<int64_t>((static_cast<double>(frames) / sampleRate) * kMillisecondsInSecond +
-                                offset);
+// std::vector to std::string
+template<typename T>
+std::string toString(const std::vector<T> &vec) {
+    std::string res = "[";
+    for (auto element: vec) {
+        res += std::to_string(element) + ",";
+    }
+    res += "]";
+
+    return res;
 }
 
 #endif //ZDRUMMACHINE_UTILITYFUNCTIONS_H

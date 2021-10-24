@@ -27,17 +27,24 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             binding.seekBar.progress = 60
             binding.seekBarTextView.text = binding.seekBar.progress.toString()
-        }
+            native_onInit(this.assets, binding.seekBar.progress)
 
-        // Example of a call to a native method
-        binding.sampleText.text = stringFromJNI()
+            val metronomeArray = intArrayOf(0, 1000, 2000, 3000)
+            val midTomArray = intArrayOf(1500, 2500)
+            val snareArray = intArrayOf(500, 3500)
+
+            // set patterns
+            native_setPattern(0, metronomeArray)
+            native_setPattern(1, midTomArray)
+            native_setPattern(2, snareArray)
+        }
 
         binding.playButton.setOnClickListener {
             // TODO to VM
             when (playingStatus) {
                 0, 2 -> {
                     Log.d(TAG, "start playing")
-                    native_onStart(this.assets, binding.seekBar.progress)
+                    native_onStart(binding.seekBar.progress)
                     playingStatus = 1 // TODO get status from zDrumMachine instead
                     binding.playButton.setImageDrawable(this.getDrawable(R.drawable.ic_baseline_pause_24))
                     binding.stopButton.isVisible = true
@@ -92,19 +99,11 @@ class MainActivity : AppCompatActivity() {
         binding.playButton.setImageDrawable(this@MainActivity.getDrawable(R.drawable.ic_baseline_play_arrow_24))
     }
 
-    /**
-     * A native method that is implemented by the 'zdrummachine' native library,
-     * which is packaged with this application.
-     */
-    external fun stringFromJNI(): String
-
-    private external fun native_onStart(assetManager: AssetManager, bpm: Int)
-
+    private external fun native_onInit(assetManager: AssetManager, bpm: Int)
+    private external fun native_onStart(bpm: Int)
     private external fun native_onPause()
-
     private external fun native_onStop()
-
-//    private external fun native_stop(bmp: Int)
+    private external fun native_setPattern(id: Int, pattern: IntArray)
 
     companion object {
         // Used to load the 'zdrummachine' library on application startup.
