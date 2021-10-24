@@ -9,11 +9,12 @@
 
 #include "ZDrumMachine.h"
 
-ZDrumMachine::ZDrumMachine(AAssetManager &assetManager, int bpmReal) : mAssetManager(assetManager)  {
+ZDrumMachine::ZDrumMachine(AAssetManager &assetManager, int bpmReal) : mAssetManager(assetManager) {
     mBpmReal = bpmReal;
 }
 
-void ZDrumMachine::start() {
+void ZDrumMachine::start(int bpm) {
+    mBpmReal = bpm;
     mLoadingResult = std::async(&ZDrumMachine::load, this);
 }
 
@@ -27,17 +28,22 @@ void ZDrumMachine::stop() {
 }
 
 void ZDrumMachine::pause() {
-    mPlayingState = PlayingState::Paused;
-    if (mAudioStream) {
-        mAudioStream->pause();
-    }
+    // For some reason this failed sometimes, so we just stop()
+    // TODO remove this workaround and fix the issue
+    // but it seems work !!!
+
+//    mPlayingState = PlayingState::Paused;
+//    if (mAudioStream) {
+//        mAudioStream->pause();
+//    }
+    stop();
 }
 
 void ZDrumMachine::onErrorAfterClose(AudioStream *stream, Result result) {
     if (result == Result::ErrorDisconnected) {
         release();
         mAudioStream.reset();
-        start();
+        start(mBpmReal);
     } else {
         LOGE("Stream error: %s", convertToText(result));
     }
@@ -58,7 +64,8 @@ ZDrumMachine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t num
         // Metronome weak
         if (mMetronomeWeakEvents.peek(nextMetronomeWeakEventMs) &&
             mSongPositionMs >=
-                    static_cast<int64_t>((nextMetronomeWeakEventMs + (mMultiplierMetronomeWeak * 4000)) * mBpm)) {
+            static_cast<int64_t>((nextMetronomeWeakEventMs + (mMultiplierMetronomeWeak * 4000)) *
+                                 mBpm)) {
             mMetronomeWeakSound->setPlaying(true);
             mMetronomeWeakEvents.pop(nextMetronomeWeakEventMs);
 
@@ -71,7 +78,8 @@ ZDrumMachine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t num
 
         // Drum Mid Tom
         if (mDrumMidTomEvents.peek(nextDrumMidTomEventMs) &&
-            mSongPositionMs >= static_cast<int64_t>((nextDrumMidTomEventMs + (mMultiplierDrumMidTom * 4000)) * mBpm)) {
+            mSongPositionMs >=
+            static_cast<int64_t>((nextDrumMidTomEventMs + (mMultiplierDrumMidTom * 4000)) * mBpm)) {
             mDrumMidTomeSound->setPlaying(true);
             mDrumMidTomEvents.pop(nextDrumMidTomEventMs);
 
@@ -84,7 +92,8 @@ ZDrumMachine::onAudioReady(AudioStream *oboeStream, void *audioData, int32_t num
 
         // Drum Snare
         if (mDrumShareEvents.peek(nextDrumSnareEventMs) &&
-            mSongPositionMs >= static_cast<int64_t>((nextDrumSnareEventMs + (mMultiplierDrumSnare * 4000)) * mBpm)) {
+            mSongPositionMs >=
+            static_cast<int64_t>((nextDrumSnareEventMs + (mMultiplierDrumSnare * 4000)) * mBpm)) {
             mDrumShareSound->setPlaying(true);
             mDrumShareEvents.pop(nextDrumSnareEventMs);
 
@@ -219,18 +228,6 @@ bool ZDrumMachine::setupAudioSources() {
     return true;
 }
 
-void ZDrumMachine::scheduleMetronomeEvents() {
-    for (auto t : kTestMetronomeEvents) mMetronomeWeakEvents.push(t);
-}
-
-void ZDrumMachine::scheduleDrumMidTomEvents() {
-    for (auto t : kTestDrumMidTomEvents) mDrumMidTomEvents.push(t);
-}
-
-void ZDrumMachine::scheduleDrumSnareEvents() {
-    for (auto t : kTestDrumShareEvents) mDrumShareEvents.push(t);
-}
-
 void ZDrumMachine::release() {
     mPlayingState = PlayingState::Stopped;
     mMixer.removeAllTracks();
@@ -239,4 +236,52 @@ void ZDrumMachine::release() {
     mMultiplierMetronomeWeak = 0;
     mMultiplierDrumMidTom = 0;
     mMultiplierDrumSnare = 0;
+}
+
+LockFreeQueue<int64_t, kMaxQueueItems> *ZDrumMachine::getSoundEvents(int idSound) {
+    if (idSound == 0) {
+        return &mMetronomeWeakEvents;
+    } else if (idSound == 1) {
+        return &mDrumMidTomEvents;
+    } else if (idSound == 2) {
+        return &mDrumShareEvents;
+    }
+    return nullptr;
+}
+
+vector<int64_t> *ZDrumMachine::getSoundBank(int idSound) {
+    if (idSound == 0) {
+        return &mMetronomeWeakBank;
+    } else if (idSound == 1) {
+        return &mDrumMidTomBank;
+    } else if (idSound == 2) {
+        return &mDrumSnareBank;
+    }
+    return nullptr;
+}
+
+void ZDrumMachine::setPatternForSound(int idSound, const vector<int> &pattern) {
+    LOGD("Set pattern for idSound = %d, pattern = %s", idSound, toString(pattern).c_str());
+    auto particularEvents = getSoundEvents(idSound);
+    auto bank = getSoundBank(idSound);
+
+    // clear
+    (*bank).clear();
+    (*particularEvents).clear();
+
+    for (auto b: pattern) (*bank).push_back(b);
+    for (auto t: pattern) (*particularEvents).push(t);
+}
+
+void ZDrumMachine::scheduleMetronomeEvents() {
+    //for (auto t : kTestMetronomeEvents) mMetronomeWeakEvents.push(t);
+    for (auto t : mMetronomeWeakBank) mMetronomeWeakEvents.push(t);
+}
+
+void ZDrumMachine::scheduleDrumMidTomEvents() {
+    for (auto t : mDrumMidTomBank) mDrumMidTomEvents.push(t);
+}
+
+void ZDrumMachine::scheduleDrumSnareEvents() {
+    for (auto t : mDrumSnareBank) mDrumShareEvents.push(t);
 }
