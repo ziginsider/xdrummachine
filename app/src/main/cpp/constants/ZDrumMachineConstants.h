@@ -35,12 +35,6 @@ constexpr char kSnareDrumFilename[] { "snare_drum.mp3" };
 
 // mock bpm
 constexpr int kStandardBpm = 60;
-constexpr int kRealBpm = 80;
-
-// Test events
-constexpr int64_t kTestMetronomeEvents[] { 0, 1000, 2000, 3000 };
-constexpr int64_t kTestDrumMidTomEvents[] {};
-constexpr int64_t kTestDrumShareEvents[] {  };
 
 struct AudioProperties {
     int32_t channelCount;

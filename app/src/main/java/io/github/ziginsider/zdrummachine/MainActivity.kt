@@ -1,13 +1,13 @@
 package io.github.ziginsider.zdrummachine
 
 import android.content.res.AssetManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.core.view.isVisible
-import io.github.ziginsider.zdrummachine.databinding.ActivityMainBinding
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
+import io.github.ziginsider.zdrummachine.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,15 +28,6 @@ class MainActivity : AppCompatActivity() {
             binding.seekBar.progress = 60
             binding.seekBarTextView.text = binding.seekBar.progress.toString()
             native_onInit(this.assets, binding.seekBar.progress)
-
-            val metronomeArray = intArrayOf(0, 1000, 2000, 3000)
-            val midTomArray = intArrayOf(1500, 2500)
-            val snareArray = intArrayOf(500, 3500)
-
-            // set patterns
-            native_setPattern(0, metronomeArray)
-            native_setPattern(1, midTomArray)
-            native_setPattern(2, snareArray)
         }
 
         binding.playButton.setOnClickListener {
@@ -44,6 +35,7 @@ class MainActivity : AppCompatActivity() {
             when (playingStatus) {
                 0, 2 -> {
                     Log.d(TAG, "start playing")
+                    setSoundPatterns()
                     native_onStart(binding.seekBar.progress)
                     playingStatus = 1 // TODO get status from zDrumMachine instead
                     binding.playButton.setImageDrawable(this.getDrawable(R.drawable.ic_baseline_pause_24))
@@ -65,6 +57,43 @@ class MainActivity : AppCompatActivity() {
         }
 
         setSeekBar()
+    }
+
+    private fun setSoundPatterns() {
+        val metronomeArray = mutableListOf<Int>()
+        val midTomArray = mutableListOf<Int>()
+        val snareArray = mutableListOf<Int>()
+
+        with(binding) {
+            if (midTom1.isChecked) midTomArray.add(0)
+            if (midTom2.isChecked) midTomArray.add(500)
+            if (midTom3.isChecked) midTomArray.add(1000)
+            if (midTom4.isChecked) midTomArray.add(1500)
+            if (midTom5.isChecked) midTomArray.add(2000)
+            if (midTom6.isChecked) midTomArray.add(2500)
+            if (midTom7.isChecked) midTomArray.add(3000)
+            if (midTom8.isChecked) midTomArray.add(3500)
+
+            if (snare1.isChecked) snareArray.add(0)
+            if (snare2.isChecked) snareArray.add(500)
+            if (snare3.isChecked) snareArray.add(1000)
+            if (snare4.isChecked) snareArray.add(1500)
+            if (snare5.isChecked) snareArray.add(2000)
+            if (snare6.isChecked) snareArray.add(2500)
+            if (snare7.isChecked) snareArray.add(3000)
+            if (snare8.isChecked) snareArray.add(3500)
+        }
+
+        // set patterns
+        if (binding.metronomeCheckbox.isChecked) {
+            metronomeArray.add(0)
+            metronomeArray.add(1000)
+            metronomeArray.add(2000)
+            metronomeArray.add(3000)
+        }
+        native_setPattern(0, metronomeArray.toIntArray())
+        native_setPattern(1, midTomArray.toIntArray())
+        native_setPattern(2, snareArray.toIntArray())
     }
 
     private fun setSeekBar() {
