@@ -29,7 +29,8 @@ Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onInit(JNIEnv *env, 
 }
 
 JNIEXPORT void JNICALL
-Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onStart(JNIEnv *env, jobject thiz, jint bpm) {
+Java_io_github_ziginsider_zdrummachine_MainActivity_native_1onStart(JNIEnv *env, jobject thiz,
+                                                                    jint bpm) {
 
     // Start
     if (machine == nullptr) {
@@ -76,6 +77,12 @@ Java_io_github_ziginsider_zdrummachine_MainActivity_native_1setPattern(JNIEnv *e
     env->ReleaseIntArrayElements(pattern, _pattern_c_array, 0);
 
     machine->setPatternForSound(id, _pattern);
+}
+
+JNIEXPORT jlong JNICALL
+Java_io_github_ziginsider_zdrummachine_MainActivity_native_1getSongPositionMs(JNIEnv *env,
+                                                                              jobject thiz) {
+    return (jlong) machine->getSongPosition();
 }
 
 } // extern "C"

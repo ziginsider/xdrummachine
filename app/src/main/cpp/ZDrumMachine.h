@@ -47,6 +47,11 @@ public:
 
     void onErrorAfterClose(AudioStream *stream, Result result) override;
 
+    // Audio stream
+    atomic<int64_t> mSongPositionMs{0};
+
+    int64_t getSongPosition() const { return mSongPositionMs / mBpm; }
+
 private:
     AAssetManager &mAssetManager;
     int mBpmReal;
@@ -65,7 +70,6 @@ private:
 
     // Audio stream
     atomic<int64_t> mCurrentFrame{0};
-    atomic<int64_t> mSongPositionMs{0};
     atomic<int64_t> mMultiplierMetronomeWeak{0};
     atomic<int64_t> mMultiplierDrumMidTom{0};
     atomic<int64_t> mMultiplierDrumSnare{0};

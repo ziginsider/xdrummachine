@@ -7,7 +7,13 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.coroutineScope
 import io.github.ziginsider.zdrummachine.databinding.ActivityMainBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity() {
@@ -17,6 +23,8 @@ class MainActivity : AppCompatActivity() {
     // TODO to VM
     // 0 - stopped (idle), 1 - playing, 2 - paused
     private var playingStatus = 0
+
+    private var job: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,11 +46,17 @@ class MainActivity : AppCompatActivity() {
                     setSoundPatterns()
                     native_onStart(binding.seekBar.progress)
                     playingStatus = 1 // TODO get status from zDrumMachine instead
+
+                    onRhythmVisualization()
+
                     binding.playButton.setImageDrawable(this.getDrawable(R.drawable.ic_baseline_pause_24))
                     binding.stopButton.isVisible = true
                 }
                 1 -> {
                     Log.d(TAG, "pause playing")
+
+                    job?.cancel()
+
                     native_onPause()
                     playingStatus = 2 // TODO get status from zDrumMachine instead
                     binding.playButton.setImageDrawable(this.getDrawable(R.drawable.ic_baseline_play_arrow_24))
@@ -52,11 +66,62 @@ class MainActivity : AppCompatActivity() {
 
         binding.stopButton.setOnClickListener {
             Log.d(TAG, "stop playing")
+
+            job?.cancel()
+
             binding.seekBar.progress = 60
             onStopPlaying()
         }
 
         setSeekBar()
+    }
+
+    private fun onRhythmVisualization() {
+        //val delayTime = 30 / binding.seekBar.progress.toLong() * 1000
+        if (!binding.vizCheckbox.isChecked) return
+        if (job?.isActive == true) job?.cancel()
+        job = lifecycle.coroutineScope.launchWhenResumed {
+            if (playingStatus == 1) {
+                while (true) {
+                    when (native_getSongPositionMs() % 4000) {
+                        in 0..499 -> {
+                                binding.viz1.text = "+"
+                                binding.viz8.text = ""
+                        }
+                        in 500..999 -> {
+                                binding.viz2.text = "+"
+                                binding.viz1.text = ""
+                        }
+                        in 1000..1499 -> {
+                                binding.viz3.text = "+"
+                                binding.viz2.text = ""
+                        }
+                        in 1500..1999 -> {
+                                binding.viz4.text = "+"
+                                binding.viz3.text = ""
+                        }
+                        in 2000..2499 -> {
+                                binding.viz5.text = "+"
+                                binding.viz4.text = ""
+                        }
+                        in 2500..2999 -> {
+                                binding.viz6.text = "+"
+                                binding.viz5.text = ""
+                        }
+                        in 3000..3499 -> {
+                                binding.viz7.text = "+"
+                                binding.viz6.text = ""
+                        }
+                        in 3500..4000 -> {
+                                binding.viz8.text = "+"
+                                binding.viz7.text = ""
+                        }
+                    }
+
+                    delay(10)
+                }
+            }
+        }
     }
 
     private fun setSoundPatterns() {
@@ -133,6 +198,7 @@ class MainActivity : AppCompatActivity() {
     private external fun native_onPause()
     private external fun native_onStop()
     private external fun native_setPattern(id: Int, pattern: IntArray)
+    private external fun native_getSongPositionMs(): Long
 
     companion object {
         // Used to load the 'zdrummachine' library on application startup.
